@@ -1,5 +1,7 @@
 # msrtsimul in a Docker
 
+First make sure you complete `docker login ghcr.io/fmassin/msrtsimuld`
+
 1. Start the docker (only once or when updating docker image)
     ```bash
     docker stop msrtsimuld && docker rm msrtsimuld  
@@ -7,7 +9,7 @@
             --add-host=host.docker.internal:host-gateway  \
             -p 18000:18000 \
             --name msrtsimuld \
-            fredmassin/msrtsimuld:latest
+            ghcr.io/fmassin/msrtsimuld:main
     ```
 2. Allow container `msrtsimuld` to copy from your computer (once per image run)
     ```bash
