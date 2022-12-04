@@ -1,0 +1,15 @@
+#!/bin/bash
+./gsm setup <<EOF
+
+
+
+sysop
+sysop
+https://data.gempa.de/packages/Public/
+
+
+
+
+EOF
+./gsm update
+./gsm install seiscomp -y
