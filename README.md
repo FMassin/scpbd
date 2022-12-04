@@ -18,7 +18,7 @@ First make sure you complete `docker login ghcr.io/fmassin/msrtsimuld`
     ```
 3. Define a shortcut function (once per host session)
     ```bash
-    msrtsimuld () {docker exec -u 0  -it msrtsimuld main $@} 
+    msrtsimuld () {docker exec -u 0  -it msrtsimuld main $@ ; } 
     ```
 4. Playback your data (e.i., `$(pwd)/data.mseed`) using your metadata and its format (e.i., `$(pwd)/inv.xml,sc3` for an `sc3` format, include level station for best efficiency)... Note the IP at the begining of stdout
     ```bash
