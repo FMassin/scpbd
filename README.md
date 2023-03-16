@@ -3,7 +3,7 @@
 > Miniseed data playback in SeisComP requires [configuring a dedicated seedlink server appropriately for msrtsimul](https://www.seiscomp.de/doc/base/tutorials/waveformplayback.html) and the related metadata. Using **msrtsimul in a docker** (*msrtsimuld*), all of this is done automatically via SeisComP tools leaving your system config untouched. The only dependencies are [docker](https://docs.docker.com/engine/install/) and ssh ([OSX](https://support.apple.com/en-gb/guide/mac-help/mchlp1066/mac)).  
 
 1. First make sure that [you complete `docker login ghcr.io/fmassin/msrtsimuld`](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry)
-2. Start the docker (only once or when updating docker image)
+2. Start the docker (only once or when updating docker image, old docker version: replace `host-gateway` by `$(ip addr show docker0 | grep -Po 'inet \K[\d.]+')`)
     ```bash
     docker stop msrtsimuld && docker rm msrtsimuld # That is in case you update an existing one 
     docker run -d \
