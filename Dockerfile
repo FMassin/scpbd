@@ -1,6 +1,6 @@
 FROM amd64/debian:stable-slim
 
-MAINTAINER Fred Massin  <fmassin@sed.ethz.ch>
+LABEL org.opencontainers.image.authors="fmassin@sed.ethz.ch"
 
 ENV    WORK_DIR /home/sysop/
 ENV INSTALL_DIR /home/sysop/seiscomp
@@ -30,7 +30,8 @@ RUN apt-get update && \
         python3 \
         python3-pip \
         sudo \
-        wget 
+        wget \
+        pipx
 
 
 # Cleanup
@@ -65,10 +66,12 @@ RUN sed -i'' -e's/^#PermitRootLogin prohibit-password$/PermitRootLogin yes/' /et
 USER sysop
 RUN wget https://data.gempa.de/gsm/gempa-gsm.tar.gz &&\
     tar xvfz gempa-gsm.tar.gz 
-RUN rm -rf gsm/sync
-RUN python3 -m pip install --user configparser cryptography humanize natsort python-dateutil pytz requests tqdm tzlocal
+
+RUN pip install configparser cryptography humanize natsort python-dateutil pytz requests tqdm tzlocal --break-system-packages
+
 COPY gsmsetup gsm/
-RUN cd gsm && \
+RUN rm -rf gsm/sync &&\
+    cd gsm && \
     bash ./gsmsetup 
 
 USER root

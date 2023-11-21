@@ -3,13 +3,15 @@
 
 
 
-sysop
-sysop
-https://data.gempa.de/packages/Public/
+y
 
 
 
 
+
+n
 EOF
-./gsm update
+./gsm update <<EOF
+n
+EOF
 ./gsm install seiscomp -y
