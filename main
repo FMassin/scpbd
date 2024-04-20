@@ -1,6 +1,13 @@
 #!/bin/bash
+#
+# $1: mseed data file
+# $2: <inventory file>[,<format>] (import_inv help formats)
+# $3+: msrtsimul options
+# 
 
-#sudo -u username
+su sysop -c "bash /usr/local/bin/playback.sh $1 $2 $3 $4 $5 "
+exit 1
+
 IP=$( cat /etc/hosts|awk 'END{print $1}' )
 echo Hello from msrtsimul\@docker, please note its IP $IP
 
@@ -8,24 +15,11 @@ invarray=(${2/,/ })
 echo "Format ${invarray[1]} for inventory: ${invarray[0]}"
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $1 ./
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  ${invarray[0]} ./
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $3 ./
+
+ls $(basename $1) || exit 1
+ls $(basename ${invarray[0]}) || exit 1
 
 /etc/init.d/mariadb start &&
-	source /home/sysop/.bashrc &&           
-	FF=$SEISCOMP_ROOT/var/run/seedlink/mseedfifo &&
-	(ls $FF 2>/dev/null || ( mkdir -p $(dirname $FF) && mkfifo $FF )) &&
-	(echo "msrtsimul = true";echo "plugins.mseedfifo.fifo = $FF") > $SEISCOMP_ROOT/etc/global.cfg &&
-	import_inv help formats |grep ${invarray[1]} &&      
-	import_inv ${invarray[1]} $(basename ${invarray[0]})   &&          
-	D=$SEISCOMP_ROOT/etc/key/global/ &&
-	mkdir -p $D &&
-	echo "" > $D/profile_g &&
-	D=$SEISCOMP_ROOT/etc/key/seedlink/ &&
-	mkdir -p $D &&
-	echo "sources = g:mseedfifo" > $D/profile_g &&
-	seiscomp --asroot update-config inventory &&      
-	(echo "set profile global g *";echo "set profile seedlink g *";echo exit)|seiscomp --asroot shell && 
-	seiscomp --asroot update-config seedlink  &&      
-	seiscomp --asroot restart seedlink  &&         
-	scmssort -u -E -v $(basename $1) > sorted.mseed &&
-	echo $IP is my IP &&
-	msrtsimul "${@:4}" sorted.mseed 
+	su sysop -c "bash /usr/local/bin/playback.sh $1 $2 $3 $4 $5 "
+	

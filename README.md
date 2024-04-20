@@ -9,24 +9,50 @@
     docker run -d \
             --add-host=host.docker.internal:host-gateway  \
             -p 18000:18000 \
+            -p 222:22 \
             --name msrtsimuld \
             ghcr.io/fmassin/msrtsimuld:main
     ```
 3. Allow container `msrtsimuld` to copy from your computer (once per image run)
     ```bash
-    docker exec -u 0  -it msrtsimuld ssh-keygen 
+    docker exec -u 0  -it msrtsimuld ssh-keygen -t rsa -N '' 
     docker exec -u 0  -it msrtsimuld ssh-copy-id $USER@host.docker.internal 
     ```
 4. Define a shortcut function (once per host session)
     ```bash
     msrtsimuld () { docker exec -u 0  -it msrtsimuld main $@ ; } 
     ```
-5. Playback your data (e.i., `$(pwd)/data.mseed`) using your metadata and its format (e.i., `$(pwd)/inv.xml,sc3` for an `sc3` format, include level station for best efficiency)... Note the IP at the begining of stdout
+5. Playback your data (e.i., `$(pwd)/data.mseed`) using your metadata and its format (e.i., `$(pwd)/inv.xml,sc3` for an `sc3` format, include station level for best efficiency)... Note the IP at the beginning of stdout
     ```bash
     msrtsimuld $USER@host.docker.internal:$(pwd)/data.mseed $USER@host.docker.internal:$(pwd)/inv.xml,sc3
     ```
+6. Reprocess the data within a real-time simulation respecting data timestamps by adding a sqlite3 database as 3rd argument:
+    ```bash
+    msrtsimuld $USER@host.docker.internal:$(pwd)/data.mseed $USER@host.docker.internal:$(pwd)/inv.xml,sc3  $USER@host.docker.internal:$(pwd)/db.sqlite
+    ```
+
+> Point 6 requires SeisComP automatic processing modules to be enabled and configured, e.g., with `ssh -p 222 sysop@localhost scconfig`
 
 Once data are being played back and given container IP is 172.17.0.4: 
 ```
 slinktool -Q 172.17.0.4
+```
+
+## Build and test 
+```bash
+docker build -f "Dockerfile" -t dockermsrtsimul:latest "."
+docker stop msrtsimuld && docker rm msrtsimuld 
+docker run -d \
+        --add-host=host.docker.internal:host-gateway  \
+        -p 18000:18000 \
+        -p 222:22 \
+        --name msrtsimuld \
+        dockermsrtsimul:latest
+
+docker exec -u 0  -it msrtsimuld ssh-keygen -t rsa -N '' 
+docker exec -u 0  -it msrtsimuld ssh-copy-id $USER@host.docker.internal 
+
+msrtsimuld () { docker exec -u 0  -it msrtsimuld main $@ ; } 
+
+msrtsimuld $USER@host.docker.internal:$(pwd)/data.mseed $USER@host.docker.internal:$(pwd)/inv.xml,sc3  $USER@host.docker.internal:$(pwd)/db.sqlite
 ```

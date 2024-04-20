@@ -4,6 +4,7 @@ LABEL org.opencontainers.image.authors="fmassin@sed.ethz.ch"
 
 ENV    WORK_DIR /home/sysop/
 ENV INSTALL_DIR /home/sysop/seiscomp
+ENV     SCPBTAG seiscomp4+
 
 # Fix Debian  env
 ENV DEBIAN_FRONTEND noninteractive
@@ -56,14 +57,17 @@ RUN mkdir -p /home/sysop/.seiscomp \
     && chown -R sysop:sysop /home/sysop
 
 USER root
+
 ## Start sshd
 RUN passwd -d sysop
 RUN sed -i'' -e's/^#PermitRootLogin prohibit-password$/PermitRootLogin yes/' /etc/ssh/sshd_config \
     && sed -i'' -e's/^#PasswordAuthentication yes$/PasswordAuthentication yes/' /etc/ssh/sshd_config \
     && sed -i'' -e's/^#PermitEmptyPasswords no$/PermitEmptyPasswords yes/' /etc/ssh/sshd_config \
-    && sed -i'' -e's/^UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
+    && sed -i'' -e's/^UsePAM yes/UsePAM no/' /etc/ssh/sshd_config 
 
 USER sysop
+
+## Install SeisComP
 RUN wget https://data.gempa.de/gsm/gempa-gsm.tar.gz &&\
     tar xvfz gempa-gsm.tar.gz 
 
@@ -76,6 +80,8 @@ RUN rm -rf gsm/sync &&\
 
 USER root
 RUN chown -R sysop:root /home/sysop
+
+## Install SeisComP deps and database
 RUN sed -i 's;apt;apt -y;' $INSTALL_DIR/share/deps/*/*/install-*.sh
 RUN $INSTALL_DIR/bin/seiscomp install-deps base gui mariadb-server mariadb-server
 
@@ -87,12 +93,26 @@ RUN /etc/init.d/mariadb start && \
     mysql -u root -e "FLUSH PRIVILEGES" && \
     mysql -u root seiscomp <  $INSTALL_DIR/share/db/mysql.sql
 
-COPY main /usr/local/bin/
+## Install faketime playback dependencies 
+RUN apt-get install -y \
+    git \
+    libfaketime
+
+RUN pip install obspy --break-system-packages
 
 USER sysop
 RUN $INSTALL_DIR/bin/seiscomp print env >> /home/sysop/.bashrc
 
+## Setup faketime playback
+RUN git clone --branch "$SCPBTAG" https://github.com/yannikbehr/sc3-playback  $WORK_DIR"/sc3-playback"
+
 USER root
+
+## Setup main 
+COPY main /usr/local/bin/
+COPY playback.sh /usr/local/bin/
+RUN chown -R sysop /home/sysop/
+
 EXPOSE 18000
 #ENTRYPOINT ["/usr/local/bin/main"]
 EXPOSE 22
