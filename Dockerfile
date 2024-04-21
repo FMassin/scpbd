@@ -96,6 +96,7 @@ RUN /etc/init.d/mariadb start && \
 ## Install faketime playback dependencies 
 RUN apt-get install -y \
     git \
+    sqlite3 \
     libfaketime
 
 RUN pip install obspy --break-system-packages

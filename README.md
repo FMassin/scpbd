@@ -1,6 +1,6 @@
 # SeisComP playback in a docker
 
-> Miniseed data playback in SeisComP requires [configuring a dedicated seedlink server appropriately for msrtsimul](https://www.seiscomp.de/doc/base/tutorials/waveformplayback.html) and the related metadata. Using **SeisComP playback in a docker** (*scpbd*), all of this is done automatically via SeisComP tools leaving your system config untouched. The only dependencies are [docker](https://docs.docker.com/engine/install/) and ssh ([OSX](https://support.apple.com/en-gb/guide/mac-help/mchlp1066/mac)).  
+> Miniseed data playback in SeisComP requires [configuring a dedicated seedlink server appropriately for msrtsimul](https://www.seiscomp.de/doc/base/tutorials/waveformplayback.html) and the related metadata. Using **SeisComP playback in a docker** (`scpbd`), all of this is done automatically via SeisComP tools leaving your system config untouched. The only dependencies are [docker](https://docs.docker.com/engine/install/) and ssh ([OSX](https://support.apple.com/en-gb/guide/mac-help/mchlp1066/mac)).  
 
 > This is based on https://github.com/yannikbehr/sc3-playback developed by @yannikbehr.
 
@@ -37,12 +37,13 @@
 
 > Point 6 requires SeisComP automatic processing modules to be enabled and configured, e.g., with `ssh -p 222 sysop@localhost scconfig`
 
-Once data are being played back and given container IP is 172.17.0.4: 
+Once data are being played back: 
 ```
-slinktool -Q 172.17.0.4
+slinktool -Q localhost
 ```
 
-## Build and test 
+# Build locally and test 
+For developing purpose
 ```bash
 docker build -f "Dockerfile" -t scpbd:latest "."
 docker stop scpbd && docker rm scpbd 
