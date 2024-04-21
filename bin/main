@@ -5,6 +5,8 @@
 # $3+: msrtsimul options
 # 
 
+DB=/home/sysop/db.sqlite
+
 IP=$( cat /etc/hosts|awk 'END{print $1}' )
 echo Hello from msrtsimul\@docker, please note its IP $IP
 
@@ -12,11 +14,12 @@ invarray=(${2/,/ })
 echo "Format ${invarray[1]} for inventory: ${invarray[0]}"
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $1 ./
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  ${invarray[0]} ./
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $3 ./
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $3 $DB
 
 ls $(basename $1) || exit 1
 ls $(basename ${invarray[0]}) || exit 1
 
-/etc/init.d/mariadb start &&
-	su sysop -c "bash /usr/local/bin/playback.sh $1 $2 $3 $4 $5 "
+ls $DB && chown sysop $DB
+
+su sysop -c "bash /usr/local/bin/playback.sh $1 $2 $DB $3 $4 $5 "
 	

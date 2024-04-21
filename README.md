@@ -30,7 +30,9 @@
     ```
 6. Reprocess the data within a real-time simulation respecting data timestamps by adding a sqlite3 database as 3rd argument:
     ```bash
-    msrtsimuld $USER@host.docker.internal:$(pwd)/test/data.mseed $USER@host.docker.internal:$(pwd)/test/inv.xml,sc3  $USER@host.docker.internal:$(pwd)/test/db.sqlite
+    docker exec -u sysop  -it msrtsimuld /home/sysop/seiscomp/bin/seiscomp enable scautopick scamp  scautoloc scevent sceewenv scvsmag
+
+    msrtsimuld $USER@host.docker.internal:$(pwd)/test/data.mseed $USER@host.docker.internal:$(pwd)/test/inv.xml,sc3 
     ```
 
 > Point 6 requires SeisComP automatic processing modules to be enabled and configured, e.g., with `ssh -p 222 sysop@localhost scconfig`
@@ -56,5 +58,7 @@ docker exec -u 0  -it msrtsimuld ssh-copy-id $USER@host.docker.internal
 
 msrtsimuld () { docker exec -u 0  -it msrtsimuld main $@ ; } 
 
-msrtsimuld $USER@host.docker.internal:$(pwd)/test/data.mseed $USER@host.docker.internal:$(pwd)/test/inv.xml,sc3  $USER@host.docker.internal:$(pwd)/test/db.sqlite
+docker exec -u sysop  -it msrtsimuld /home/sysop/seiscomp/bin/seiscomp enable scautopick scamp  scautoloc scevent sceewenv scvsmag
+
+msrtsimuld $USER@host.docker.internal:$(pwd)/test/data.mseed $USER@host.docker.internal:$(pwd)/test/inv.xml,sc3 
 ```

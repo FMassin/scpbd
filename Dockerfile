@@ -109,9 +109,9 @@ RUN git clone --branch "$SCPBTAG" https://github.com/yannikbehr/sc3-playback  $W
 USER root
 
 ## Setup main 
-COPY main /usr/local/bin/
-COPY playback.sh /usr/local/bin/
+COPY bin/* /usr/local/bin/
 COPY cfg/* /home/sysop/.seiscomp/
+
 RUN chown -R sysop /home/sysop/
 
 EXPOSE 18000
