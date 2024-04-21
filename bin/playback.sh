@@ -2,10 +2,10 @@
 
 invarray=(${2/,/ })
 
+source /home/sysop/.bashrc      
+
 DB=/home/sysop/db.sqlite
 ls $DB  || sqlite3 -batch -init $SEISCOMP_ROOT/share/db/sqlite3.sql $DB .exit
-
-source /home/sysop/.bashrc      
 
 import_inv help formats |grep ${invarray[1]} 
 import_inv ${invarray[1]} $(basename ${invarray[0]})           
