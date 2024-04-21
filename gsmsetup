@@ -15,3 +15,4 @@ EOF
 n
 EOF
 ./gsm install seiscomp -y
+./gsm install sed-eew -y
