@@ -33,6 +33,9 @@
     docker exec -u sysop  -it scpbd /home/sysop/seiscomp/bin/seiscomp enable scautopick scamp  scautoloc scevent sceewenv scvsmag
 
     scpbd $USER@host.docker.internal:$(pwd)/test/data.mseed $USER@host.docker.internal:$(pwd)/test/inv.xml,sc3 
+
+    # And see the results
+    ssh -p 222 sysop@localhost scolv -d sqlite3:///home/sysop/event_db.sqlite --offline 
     ```
 
 > Point 6 requires SeisComP automatic processing modules to be enabled and configured, e.g., with `ssh -p 222 sysop@localhost scconfig`
@@ -45,8 +48,13 @@ slinktool -Q localhost
 # Build locally and test 
 For developing purpose
 ```bash
+# Build fresh image
 docker build -f "Dockerfile" -t scpbd:latest "."
+
+# Stop & remove container
 docker stop scpbd && docker rm scpbd 
+
+# Run fresh container
 docker run -d \
         --add-host=host.docker.internal:host-gateway  \
         -p 18000:18000 \
@@ -54,12 +62,19 @@ docker run -d \
         --name scpbd \
         scpbd:latest
 
+# Allow container `scpbd` to copy from your computer (once per image run)
 docker exec -u 0  -it scpbd ssh-keygen -t rsa -N '' 
 docker exec -u 0  -it scpbd ssh-copy-id $USER@host.docker.internal 
 
+# Define an `scpbd` shortcut function (once per host session)
 scpbd () { docker exec -u 0  -it scpbd main $@ ; } 
 
+# Enable automatic processing modules in `scpbd` container (once per container run)
 docker exec -u sysop  -it scpbd /home/sysop/seiscomp/bin/seiscomp enable scautopick scamp  scautoloc scevent sceewenv scvsmag
 
+# Run playback
 scpbd $USER@host.docker.internal:$(pwd)/test/data.mseed $USER@host.docker.internal:$(pwd)/test/inv.xml,sc3 
+
+# See results
+ssh -p 222 sysop@localhost scolv -d sqlite3:///home/sysop/event_db.sqlite --offline 
 ```

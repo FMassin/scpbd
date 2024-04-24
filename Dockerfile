@@ -21,7 +21,8 @@ RUN echo 'force-unsafe-io' | tee /etc/dpkg/dpkg.cfg.d/02apt-speedup \
     && echo 'DPkg::Post-Invoke {"/bin/rm -f /var/cache/apt/archives/*.deb || true";};' | tee /etc/apt/apt.conf.d/no-cache \
     && apt-get update \
     && apt-get dist-upgrade -y --no-install-recommends 
-     
+
+## Install generic tools
 RUN apt-get update && \
     apt-get install -y \
         openssh-server \
@@ -32,8 +33,19 @@ RUN apt-get update && \
         python3-pip \
         sudo \
         wget \
+        git \
         pipx
 
+## Install GSM dependencies
+RUN pip install configparser cryptography humanize natsort python-dateutil pytz requests tqdm tzlocal --break-system-packages
+
+## Install faketime playback dependencies 
+RUN apt-get install -y \
+    sqlite3 \
+    libfaketime
+
+## Install obspy deps of mseed2key
+RUN pip install obspy --break-system-packages
 
 # Cleanup
 RUN apt-get autoremove -y --purge \
@@ -56,6 +68,7 @@ RUN groupadd --gid $GROUP_ID -r sysop && useradd -m -s /bin/bash --uid $USER_ID 
 RUN mkdir -p /home/sysop/.seiscomp \
     && chown -R sysop:sysop /home/sysop
 
+# WHY this here?
 USER root
 
 ## Start sshd
@@ -67,13 +80,13 @@ RUN sed -i'' -e's/^#PermitRootLogin prohibit-password$/PermitRootLogin yes/' /et
 
 USER sysop
 
-## Install SeisComP
+## Install GSM
 RUN wget https://data.gempa.de/gsm/gempa-gsm.tar.gz &&\
     tar xvfz gempa-gsm.tar.gz 
 
-RUN pip install configparser cryptography humanize natsort python-dateutil pytz requests tqdm tzlocal --break-system-packages
-
 COPY gsmsetup gsm/
+
+## Install SeisComP
 RUN rm -rf gsm/sync &&\
     cd gsm && \
     bash ./gsmsetup 
@@ -93,13 +106,7 @@ RUN /etc/init.d/mariadb start && \
     mysql -u root -e "FLUSH PRIVILEGES" && \
     mysql -u root seiscomp <  $INSTALL_DIR/share/db/mysql.sql
 
-## Install faketime playback dependencies 
-RUN apt-get install -y \
-    git \
-    sqlite3 \
-    libfaketime
 
-RUN pip install obspy --break-system-packages
 
 USER sysop
 RUN $INSTALL_DIR/bin/seiscomp print env >> /home/sysop/.bashrc
@@ -111,7 +118,7 @@ USER root
 
 ## Setup main 
 COPY bin/* /usr/local/bin/
-COPY cfg/* /home/sysop/.seiscomp/
+ADD cfg/ /home/sysop/.seiscomp/
 
 RUN chown -R sysop /home/sysop/
 
