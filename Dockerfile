@@ -3,7 +3,7 @@ FROM amd64/debian:stable-slim
 LABEL org.opencontainers.image.authors="fmassin@sed.ethz.ch"
 
 ENV    WORK_DIR /home/sysop/
-ENV INSTALL_DIR /home/sysop/seiscomp
+ENV INSTALL_DIR /opt/seiscomp
 ENV     SCPBTAG seiscomp4+
 
 # Fix Debian  env
@@ -78,6 +78,10 @@ RUN sed -i'' -e's/^#PermitRootLogin prohibit-password$/PermitRootLogin yes/' /et
     && sed -i'' -e's/^#PermitEmptyPasswords no$/PermitEmptyPasswords yes/' /etc/ssh/sshd_config \
     && sed -i'' -e's/^UsePAM yes/UsePAM no/' /etc/ssh/sshd_config 
 
+RUN mkdir $INSTALL_DIR \
+    && chown -R sysop:sysop $INSTALL_DIR \
+    && chmod g+w $INSTALL_DIR
+
 USER sysop
 
 ## Install GSM
@@ -92,7 +96,6 @@ RUN rm -rf gsm/sync &&\
     bash ./gsmsetup 
 
 USER root
-RUN chown -R sysop:root /home/sysop
 
 ## Install SeisComP deps and database
 RUN sed -i 's;apt;apt -y;' $INSTALL_DIR/share/deps/*/*/install-*.sh
@@ -108,7 +111,10 @@ RUN /etc/init.d/mariadb start && \
 
 
 
+
+
 USER sysop
+
 RUN $INSTALL_DIR/bin/seiscomp print env >> /home/sysop/.bashrc
 
 ## Setup faketime playback
@@ -120,7 +126,7 @@ USER root
 COPY bin/* /usr/local/bin/
 ADD cfg/ /home/sysop/.seiscomp/
 
-RUN chown -R sysop /home/sysop/
+RUN chown -R sysop:root /home/sysop/ $INSTALL_DIR
 
 EXPOSE 18000
 #ENTRYPOINT ["/usr/local/bin/main"]

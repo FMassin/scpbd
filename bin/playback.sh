@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-source /home/sysop/.bashrc      
+source /home/sysop/.bashrc     
 
 DB=$4
 ls $DB  || sqlite3 -batch -init $SEISCOMP_ROOT/share/db/sqlite3.sql $DB .exit
@@ -16,7 +16,7 @@ mkdir -p $D
 echo "sources = g:mseedfifo" > $D/profile_g 
 
 python3 /usr/local/bin/mseed2key.py \
-    $1 /home/sysop/seiscomp/ \
+    $1 $SEISCOMP_ROOT/ \
     "seedlink:g"
 seiscomp  update-config    
 

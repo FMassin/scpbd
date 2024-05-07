@@ -37,7 +37,7 @@ nets = list(set([tr.stats.network for tr in data]))
 for n in nets:
     stats = list(set([tr.stats.station for tr in data if tr.stats.network == n]))
     for s in stats:
-        chans =  list(set([tr.stats.channel+'_'+tr.stats.location for tr in data if tr.stats.network == n and tr.stats.station]))
+        chans =  list(set([tr.stats.channel+'_'+tr.stats.location for tr in data if tr.stats.network == n and tr.stats.station == s ]))
         c,l = pref(chans)
         n,s,c,l = map(str,(n,s,c,l))
         l=l.replace('_','')
