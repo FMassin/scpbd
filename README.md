@@ -24,26 +24,24 @@
     ```bash
     scpbd () { docker exec -u 0  -it scpbd main $@ ; } 
     ```
-5. Playback your data (e.i., `$(pwd)/data.mseed`) using your metadata and its format (e.i., `$(pwd)/inv.xml,sc3` for an `sc3` format, include station level for best efficiency)... Note the IP at the beginning of stdout
+5. Enable (and configure) the required SeisComP automatic processing modules, e.g.:
     ```bash
-    scpbd $USER@host.docker.internal:$(pwd)/data.mseed $USER@host.docker.internal:$(pwd)/inv.xml,sc3
-    ```
-6. Reprocess the data within a real-time simulation respecting data timestamps by adding a sqlite3 database as 3rd argument:
-    ```bash
-    docker exec -u sysop  -it scpbd /home/sysop/seiscomp/bin/seiscomp enable scautopick scamp  scautoloc scevent sceewenv scvsmag
+    docker exec -u sysop  -it scpbd /opt/seiscomp/bin/seiscomp enable scautopick scamp  scautoloc scevent sceewenv scvsmag
 
+    # Check or edit the config
+    ssh -p 222 sysop@localhost scconfig
+    ```
+6. Reprocess your data (e.i., `$(pwd)/data.mseed`) using your metadata and its format (e.i., `$(pwd)/inv.xml,sc3` for an `sc3` format, include station level for best efficiency) within a real-time simulation respecting data timestamps (an optional  sqlite3 database can be provided as 3rd argument). Note the IP at the beginning of stdout. The data from the ETHZ-SED EEW unit-test dataset can be found at https://zenodo.org/doi/10.5281/zenodo.11192289:
+    ```bash
     scpbd $USER@host.docker.internal:$(pwd)/test/data.mseed $USER@host.docker.internal:$(pwd)/test/inv.xml,sc3 
 
-    # And see the results
+    # Check the data during playback (in another terminal window or tab): 
+    slinktool -Q localhost
+    ```
+7. And see the results
+    ```bash
     ssh -p 222 sysop@localhost scolv -d sqlite3:///home/sysop/event_db.sqlite --offline 
     ```
-
-> Point 6 requires SeisComP automatic processing modules to be enabled and configured, e.g., with `ssh -p 222 sysop@localhost scconfig`
-
-Once data are being played back: 
-```
-slinktool -Q localhost
-```
 
 # Build locally and test 
 For developing purpose
@@ -70,7 +68,7 @@ docker exec -u 0  -it scpbd ssh-copy-id $USER@host.docker.internal
 scpbd () { docker exec -u 0  -it scpbd main $@ ; } 
 
 # Enable automatic processing modules in `scpbd` container (once per container run)
-docker exec -u sysop  -it scpbd /home/sysop/seiscomp/bin/seiscomp enable scautopick scamp  scautoloc scevent sceewenv scvsmag
+docker exec -u sysop  -it scpbd /opt/seiscomp/bin/seiscomp enable scautopick scamp  scautoloc scevent sceewenv scvsmag
 
 # Run playback
 scpbd $USER@host.docker.internal:$(pwd)/test/data.mseed $USER@host.docker.internal:$(pwd)/test/inv.xml,sc3 

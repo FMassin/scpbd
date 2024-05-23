@@ -27,7 +27,7 @@ if not os.path.exists(profile):
         f.write('#Default scautopick profile enables picking on the related station')
 
 def pref(chans,
-         p=['HH','EH','SH','HN','HG','EN','SN','BH','LH']):
+         p=['HH','EH','SH','HN','HG','HL','EN','SN','BH']):
     for pc in p:
         for c in chans:
             if c[:len(pc)]==pc:
