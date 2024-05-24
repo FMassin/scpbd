@@ -40,7 +40,7 @@
     ```
 7. And see the results
     ```bash
-    ssh -p 222 sysop@localhost scolv -d sqlite3:///home/sysop/event_db.sqlite --offline 
+    ssh -p 222 sysop@localhost /opt/seiscomp/bin/seiscomp exec scolv -d sqlite3:///home/sysop/event_db.sqlite --offline 
     ```
 
 # Build locally and test 
@@ -74,5 +74,5 @@ docker exec -u sysop  -it scpbd /opt/seiscomp/bin/seiscomp enable scautopick sca
 scpbd $USER@host.docker.internal:$(pwd)/test/data.mseed $USER@host.docker.internal:$(pwd)/test/inv.xml,sc3 
 
 # See results
-ssh -p 222 sysop@localhost scolv -d sqlite3:///home/sysop/event_db.sqlite --offline 
+ssh -p 222 sysop@localhost /opt/seiscomp/bin/seiscomp exec scolv -d sqlite3:///home/sysop/event_db.sqlite --offline 
 ```
