@@ -4,7 +4,10 @@
 source /home/sysop/.bashrc     
 
 DB=$4
-ls $DB  || sqlite3 -batch -init $SEISCOMP_ROOT/share/db/sqlite3.sql $DB .exit
+ls $DB  || \
+    (sqlite3 -batch -init $SEISCOMP_ROOT/share/db/sqlite3.sql $DB .exit && \
+     sqlite3 -batch -init $SEISCOMP_ROOT/share/db/vs/sqlite3.sql $DB .exit && \
+     sqlite3 -batch -init $SEISCOMP_ROOT/share/db/wfparam/sqlite3.sql $DB .exit)
 
 import_inv help formats |grep $3
 import_inv $3 $2          
