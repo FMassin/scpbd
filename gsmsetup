@@ -6,11 +6,9 @@
 
 n
 
-
 /opt/seiscomp
 
 
-n
 EOF
 ./gsm update <<EOF
 n
