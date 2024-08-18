@@ -37,7 +37,7 @@ RUN apt-get update && \
         pipx
 
 ## Install GSM dependencies
-RUN pip install configparser cryptography humanize natsort python-dateutil pytz requests tqdm tzlocal --break-system-packages
+RUN pip install configparser cryptography humanize natsort python-dateutil pytz requests tqdm tzlocal urllib3 bs4 --break-system-packages
 
 ## Install faketime playback dependencies 
 RUN apt-get install -y \
