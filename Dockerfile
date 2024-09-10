@@ -68,9 +68,6 @@ RUN groupadd --gid $GROUP_ID -r sysop && useradd -m -s /bin/bash --uid $USER_ID 
 RUN mkdir -p /home/sysop/.seiscomp \
     && chown -R sysop:sysop /home/sysop
 
-# WHY this here?
-USER root
-
 ## Start sshd
 RUN passwd -d sysop
 RUN sed -i'' -e's/^#PermitRootLogin prohibit-password$/PermitRootLogin yes/' /etc/ssh/sshd_config \
@@ -78,10 +75,11 @@ RUN sed -i'' -e's/^#PermitRootLogin prohibit-password$/PermitRootLogin yes/' /et
     && sed -i'' -e's/^#PermitEmptyPasswords no$/PermitEmptyPasswords yes/' /etc/ssh/sshd_config \
     && sed -i'' -e's/^UsePAM yes/UsePAM no/' /etc/ssh/sshd_config 
 
-RUN mkdir $INSTALL_DIR \
-    && chown -R sysop:sysop $INSTALL_DIR \
-    && chmod g+w $INSTALL_DIR
-
+RUN echo $INSTALL_DIR \
+    && mkdir -p $INSTALL_DIR \
+    && chown -R sysop:sysop $INSTALL_DIR/../ \
+    && chmod g+w $INSTALL_DIR/../
+    
 USER sysop
 
 ## Install GSM
@@ -99,7 +97,7 @@ USER root
 
 ## Install SeisComP deps and database
 RUN sed -i 's;apt;apt -y;' $INSTALL_DIR/share/deps/*/*/install-*.sh
-RUN $INSTALL_DIR/bin/seiscomp install-deps base gui mariadb-server mariadb-server
+RUN $INSTALL_DIR/bin/seiscomp install-deps base gui mariadb-server
 
 RUN /etc/init.d/mariadb start && \
     sleep 5 && \
@@ -108,10 +106,6 @@ RUN /etc/init.d/mariadb start && \
     mysql -u root -e "GRANT ALL PRIVILEGES ON * . * TO 'sysop'@'localhost'" && \
     mysql -u root -e "FLUSH PRIVILEGES" && \
     mysql -u root seiscomp <  $INSTALL_DIR/share/db/mysql.sql
-
-
-
-
 
 USER sysop
 

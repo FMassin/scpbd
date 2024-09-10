@@ -4,14 +4,16 @@
 
 
 
-n
+N
 
 /opt/seiscomp
 
 
 EOF
+
 ./gsm update <<EOF
 n
 EOF
+
 ./gsm install seiscomp -y
 ./gsm install sed-eew -y

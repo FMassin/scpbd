@@ -1,3 +1,4 @@
 *.mseed
 *.xml
 README.html
+test/event_db.sqlite
