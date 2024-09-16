@@ -12,8 +12,8 @@ echo Hello from msrtsimul\@docker, please note its IP $IP
 
 invarray=(${2/,/ })
 echo "Format ${invarray[1]} for inventory: ${invarray[0]}"
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $1 /tmp/data.seed
-scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  ${invarray[0]} /tmp/inventory.xml
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $1 /tmp/data.seed || exit 1
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  ${invarray[0]} /tmp/inventory.xml || exit 1
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null  $3 $DB
 
 ls /tmp/data.seed || exit 1
